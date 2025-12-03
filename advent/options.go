@@ -2,9 +2,7 @@ package advent
 
 // Options holds the configurable parameters for a service or feature.
 type Options struct {
-	Delay            int
-	UpdateOnNumMoves int
-	RedactSolution   bool
+	Delay int
 }
 
 // Option is a functional option type that modifies the Options.
@@ -17,26 +15,10 @@ func WithDelay(delay int) Option {
 	}
 }
 
-// WithUpdateOnNumMoves sets the UpdateOnNumMoves option.
-func WithUpdateOnNumMoves(numMoves int) Option {
-	return func(o *Options) {
-		o.UpdateOnNumMoves = numMoves
-	}
-}
-
-// WithRedactSolution sets the RedactSolution option.
-func WithRedactSolution(redact bool) Option {
-	return func(o *Options) {
-		o.RedactSolution = redact
-	}
-}
-
 func NewRun(opts ...Option) *Options {
 	// Default options
 	options := &Options{
-		Delay:            0,
-		UpdateOnNumMoves: 0,
-		RedactSolution:   false,
+		Delay: 0,
 	}
 
 	// Apply provided options

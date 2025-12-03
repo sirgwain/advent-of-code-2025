@@ -8,27 +8,46 @@ import (
 )
 
 type Day1 struct {
+	input     []int
+	step      int
+	dial      int
+	num       int // the current input num being processed
+	solution1 int
+	solution2 int
 }
 
-func (d *Day1) Run(part int, filename string, opts ...Option) error {
-	switch part {
-	case 1:
-		return d.part1(filename)
-	case 2:
-		return d.part2(filename)
-	default:
-		return fmt.Errorf("part %d not valid", part)
+func (d *Day1) Day() int {
+	return 1
+}
+
+func (d *Day1) Run(filename string) error {
+	if err := d.Init(filename); err != nil {
+		return err
 	}
+
+	for {
+		done := d.Progress()
+		if done {
+			break
+		}
+
+		fmt.Println(d.View())
+	}
+
+	fmt.Println(d.ViewSolution())
+	return nil
 }
 
-func (d *Day1) readInput(filename string) ([]int, error) {
+// Init loads in the input from the file and initializes the Day
+func (d *Day1) Init(filename string) (err error) {
+	// dial starts at 50
+	d.dial = 50
+
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, fmt.Errorf("error opening file: %w", err)
+		return fmt.Errorf("error opening file: %w", err)
 	}
 	defer file.Close()
-
-	var slice []int
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -36,88 +55,69 @@ func (d *Day1) readInput(filename string) ([]int, error) {
 
 		num, err := strconv.Atoi(line[1:])
 		if err != nil {
-			return nil, fmt.Errorf("error parsing number on line: %s", line)
+			return fmt.Errorf("error parsing number on line: %s", line)
 		}
 
 		if line[0] == 'L' {
-			slice = append(slice, -num)
+			d.input = append(d.input, -num)
 		} else {
-			slice = append(slice, num)
+			d.input = append(d.input, num)
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading file: %w", err)
+		return fmt.Errorf("error reading file: %w", err)
 	}
 
-	return slice, nil
+	return err
 }
 
-func (d *Day1) part1(filename string) error {
-	// dial stars at 50
-	dial := 50
-	password := 0
+func (d *Day1) Progress() bool {
+	d.num = d.input[d.step]
+	start := d.dial
+	d.dial += d.num
 
-	nums, err := d.readInput(filename)
-	if err != nil {
-		return err
+	for d.dial < 0 {
+		d.dial += 100
+		if start != 0 {
+			d.solution2++
+		}
+		start = d.dial
+	}
+	for d.dial >= 100 {
+		d.dial = d.dial - 100
+		if d.dial != 0 {
+			d.solution2++
+		}
 	}
 
-	for _, num := range nums {
-		dial += num
-		for dial < 0 {
-			dial += 100
-		}
-		for dial >= 100 {
-			dial = dial - 100
-		}
-
-		if dial == 0 {
-			password++
-		}
-
-		fmt.Printf("Dial: %d -> %d\n", num, dial)
+	if d.dial == 0 {
+		d.solution1++
+		d.solution2++
 	}
+	d.step++
 
-	fmt.Printf("day1: %s password = %d\n", filename, password)
-	return nil
+	return d.step == len(d.input)
 }
 
-func (d *Day1) part2(filename string) error {
-	// dial stars at 50
-	dial := 50
-	password := 0
-
-	nums, err := d.readInput(filename)
-	if err != nil {
-		return err
+func (d Day1) View() string {
+	command := ""
+	if d.num < 0 {
+		command = fmt.Sprintf("L%00d", -d.num)
+	} else {
+		command = fmt.Sprintf("R%00d", d.num)
 	}
 
-	for _, num := range nums {
-		start := dial
-		dial += num
+	return fmt.Sprintf("S%d - dial: %002d, command: %s",
+		d.step,
+		d.dial,
+		command,
+	)
+}
 
-		for dial < 0 {
-			dial += 100
-			if start != 0 {
-				password++
-			}
-			start = dial
-		}
-		for dial >= 100 {
-			dial = dial - 100
-			if dial != 0 {
-				password++
-			}
-		}
-
-		if dial == 0 {
-			password++
-		}
-
-		fmt.Printf("Dial: %d + %d -> %d = %d times\n", start, num, dial, password)
-	}
-
-	fmt.Printf("day1: %s password = %d\n", filename, password)
-	return nil
+func (d Day1) ViewSolution() string {
+	return fmt.Sprintf("solution1: %s solution2: %s",
+		SolutionStyle.Render(strconv.Itoa(d.solution1)),
+		SolutionStyle.Render(strconv.Itoa(d.solution2)),
+	)
 }
