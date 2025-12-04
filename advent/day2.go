@@ -19,26 +19,26 @@ func (d *Day2) Day() int {
 	return 2
 }
 
-func (d *Day2) Run(filename string) error {
-	if err := d.Init(filename); err != nil {
-		return err
-	}
+func (d *Day2) Run(updates chan<- DayUpdate) error {
 
 	for {
 		done := d.Progress()
 		if done {
 			break
 		}
-		fmt.Printf("%s %s\n", d.View(), d.ViewSolution())
-	}
 
-	fmt.Println(d.ViewSolution())
+		updates <- DayUpdate{
+			View:     d.View(),
+			Solution: d.ViewSolution(),
+			Done:     d.Done(),
+		}
+	}
 
 	return nil
 }
 
 // Init loads in the input from the file and initializes the Day
-func (d *Day2) Init(filename string) (err error) {
+func (d *Day2) Init(filename string, opts ...Option) (err error) {
 
 	content, err := os.ReadFile(filename)
 
@@ -87,6 +87,10 @@ func (d *Day2) Progress() (done bool) {
 
 	d.step++
 
+	return d.Done()
+}
+
+func (d *Day2) Done() bool {
 	return d.step == len(d.input)
 }
 

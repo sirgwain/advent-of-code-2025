@@ -7,52 +7,98 @@ import (
 	"github.com/sirgwain/advent-of-code-2025/tui"
 )
 
-type Day interface {
-	Day() int
-	Init(filename string) error
-	Progress() bool
-	View() string
-	ViewSolution() string
+type DayUpdate struct {
+	View     string
+	Solution string
+	Done     bool
 }
 
-func RunVisual(d Day, filename string, opts ...Option) error {
-	// create a bubbletea program
-	p := tui.NewViewportProgram(tui.NewModel(fmt.Sprintf("Day %d", d.Day())))
+type Day interface {
+	Day() int
+	Init(filename string, opts ...Option) error
+	Run(updates chan<- DayUpdate) error
+}
 
-	options := NewRun(opts...)
-
-	// load in the data, init the day
-	if err := d.Init(filename); err != nil {
+func Run(d Day, filename string, opts ...Option) error {
+	if err := d.Init(filename, opts...); err != nil {
 		return err
 	}
 
+	updates := make(chan DayUpdate, 16)
+	errCh := make(chan error, 1)
+
+	// Run the day in a goroutine
 	go func() {
-		for {
-			done := d.Progress()
+		err := d.Run(updates)
+		close(updates)
 
-			view := d.View()
-			p.Send(tui.UpdateViewport(view, len(view)))
-			p.Send(tui.UpdateSolution(d.ViewSolution()))
+		errCh <- err
+	}()
 
-			if done {
-				break
-			}
+	// Consume updates as they arrive
+	for u := range updates {
+		fmt.Printf("%s %s\n", u.View, u.Solution)
+	}
+
+	// Return the error from Run
+	return <-errCh
+}
+
+func RunVisual(d Day, filename string, opts ...Option) error {
+	p := tui.NewViewportProgram(tui.NewModel(fmt.Sprintf("Day %d", d.Day())))
+	options := NewRun(opts...)
+
+	if err := d.Init(filename, opts...); err != nil {
+		return err
+	}
+
+	updates := make(chan DayUpdate, 16) // buffered so Day isn’t blocked by UI speed
+	errCh := make(chan error, 1)
+
+	// start the day's work
+	go func() {
+		err := d.Run(updates)
+		if err != nil {
+			errCh <- err
+		}
+		close(errCh)
+		close(updates)
+	}()
+
+	view := ""
+	solution := ""
+
+	// consume updates and feed Bubble Tea
+	go func() {
+		for u := range updates {
+			p.Send(tui.UpdateViewport(u.View, len(u.View)))
+			p.Send(tui.UpdateSolution(u.Solution))
 
 			if options.Delay != 0 {
 				time.Sleep(time.Millisecond * time.Duration(options.Delay))
 			}
 
+			view = u.View
+			solution = u.Solution
+
+			if u.Done {
+			}
 		}
 	}()
 
-	// execute the bubbletea program. This will block until the user pressed q or esc
 	if _, err := p.Run(); err != nil {
 		return fmt.Errorf("could not start program: %v", err)
 	}
 
-	// output the board and final result before exiting the program
-	fmt.Println(d.View())
-	fmt.Println(d.ViewSolution())
+	fmt.Printf("%s\n%s\n", view, solution)
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			return err
+		}
+	default:
+	}
 
 	return nil
 }

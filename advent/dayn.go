@@ -1,23 +1,15 @@
 package advent
 
-import (
-	"fmt"
-	"strconv"
-)
-
 type DayN struct {
-	solution1 int
-	solution2 int
+	solution1 int64
+	solution2 int64
 }
 
 func (d *DayN) Day() int {
 	return 0
 }
 
-func (d *DayN) Run(filename string) error {
-	if err := d.Init(filename); err != nil {
-		return err
-	}
+func (d *DayN) Run(updates chan<- DayUpdate) error {
 
 	for {
 		done := d.Progress()
@@ -25,19 +17,27 @@ func (d *DayN) Run(filename string) error {
 			break
 		}
 
-		fmt.Println(d.View())
+		updates <- DayUpdate{
+			View:     d.View(),
+			Solution: d.ViewSolution(),
+			Done:     d.Done(),
+		}
 	}
 
-	fmt.Println(d.ViewSolution())
 	return nil
 }
 
 // Init loads in the input from the file and initializes the Day
-func (d *DayN) Init(filename string) (err error) {
+func (d *DayN) Init(filename string, opts ...Option) (err error) {
 	return nil
 }
 
-func (d *DayN) Progress() bool {
+// Progress progresses one "step" and returns true if finished
+func (d *DayN) Progress() (done bool) {
+	return d.Done()
+}
+
+func (d *DayN) Done() bool {
 	return true
 }
 
@@ -46,8 +46,5 @@ func (d DayN) View() string {
 }
 
 func (d DayN) ViewSolution() string {
-	return fmt.Sprintf("solution1: %s solution2: %s",
-		SolutionStyle.Render(strconv.Itoa(d.solution1)),
-		SolutionStyle.Render(strconv.Itoa(d.solution2)),
-	)
+	return ""
 }

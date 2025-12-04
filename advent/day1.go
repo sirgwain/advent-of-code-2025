@@ -20,10 +20,7 @@ func (d *Day1) Day() int {
 	return 1
 }
 
-func (d *Day1) Run(filename string) error {
-	if err := d.Init(filename); err != nil {
-		return err
-	}
+func (d *Day1) Run(updates chan<- DayUpdate) error {
 
 	for {
 		done := d.Progress()
@@ -31,15 +28,18 @@ func (d *Day1) Run(filename string) error {
 			break
 		}
 
-		fmt.Println(d.View())
+		updates <- DayUpdate{
+			View:     d.View(),
+			Solution: d.ViewSolution(),
+			Done:     d.Done(),
+		}
 	}
 
-	fmt.Println(d.ViewSolution())
 	return nil
 }
 
 // Init loads in the input from the file and initializes the Day
-func (d *Day1) Init(filename string) (err error) {
+func (d *Day1) Init(filename string, opts ...Option) (err error) {
 	// dial starts at 50
 	d.dial = 50
 
@@ -97,6 +97,10 @@ func (d *Day1) Progress() bool {
 	}
 	d.step++
 
+	return d.Done()
+}
+
+func (d *Day1) Done() bool {
 	return d.step == len(d.input)
 }
 

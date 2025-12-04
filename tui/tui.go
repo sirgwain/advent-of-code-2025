@@ -38,12 +38,12 @@ type Model struct {
 
 // custom messages
 type (
-	updateViewport struct {
+	updateViewportMsg struct {
 		content string
 		width   int
 		height  int
 	}
-	updateSolution struct {
+	updateSolutionMsg struct {
 		solution string
 	}
 )
@@ -66,11 +66,11 @@ func NewViewportProgram(initialModel Model) *tea.Program {
 }
 
 func UpdateViewport(content string, width int) tea.Msg {
-	return updateViewport{content: content, width: width}
+	return updateViewportMsg{content: content, width: width}
 }
 
 func UpdateSolution(solution string) tea.Msg {
-	return updateSolution{solution: solution}
+	return updateSolutionMsg{solution: solution}
 }
 
 func (m Model) headerView() string {
@@ -93,12 +93,9 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-// update handles key presses and readying the viewport
+// Update handles key presses, window size, and viewport/tick updates.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		cmd  tea.Cmd
-		cmds []tea.Cmd
-	)
+	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -112,48 +109,45 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		solutionHeight := lipgloss.Height(m.solutionView())
 		verticalMarginHeight := headerHeight + footerHeight + solutionHeight
 
-		if !m.ready {
-			// Since this program is using the full size of the viewport we
-			// need to wait until we've received the window dimensions before
-			// we can initialize the viewport. The initial dimensions come in
-			// quickly, though asynchronously, which is why we wait for them
-			// here.
-			m.windowWidth, m.windowHeight = msg.Width, msg.Height
-			if m.minWidth == 0 {
-				m.minWidth = m.windowWidth
-			}
-			m.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight-1)
-			m.viewport.YPosition = headerHeight
-			m.ready = true
+		m.windowWidth, m.windowHeight = msg.Width, msg.Height
+		if m.minWidth == 0 {
+			m.minWidth = m.windowWidth
+		}
 
-			// This is only necessary for high performance rendering, which in
-			// most cases you won't need.
-			//
-			// Render the viewport one line below the header.
+		if !m.ready {
+			m.viewport = viewport.New(
+				msg.Width,
+				msg.Height-verticalMarginHeight, // no extra -1
+			)
+			// Render viewport one line below the header.
 			m.viewport.YPosition = headerHeight + 1
+			m.ready = true
 		} else {
 			m.viewport.Width = msg.Width
 			m.viewport.Height = msg.Height - verticalMarginHeight
 		}
-	case updateViewport:
+
+	case updateViewportMsg:
 		if m.ready {
 			if msg.width != 0 {
-				m.viewport.Width = max(m.minWidth, min(m.windowWidth, msg.width)) + viewportStyle.GetHorizontalMargins() // add two for the margin
+				m.viewport.Width = max(m.minWidth, min(m.windowWidth, msg.width)) +
+					viewportStyle.GetHorizontalMargins()
 			}
 			if msg.height != 0 {
 				m.viewport.Height = max(m.minWidth, min(m.windowHeight, msg.height))
 			}
 			m.viewport.SetContent(msg.content)
 		}
-	case updateSolution:
+
+	case updateSolutionMsg:
 		m.solution = msg.solution
 	}
 
-	// Handle keyboard and mouse events in the viewport
-	m.viewport, cmd = m.viewport.Update(msg)
-	cmds = append(cmds, cmd)
-
-	cmds = append(cmds, cmd)
+	var vcmd tea.Cmd
+	m.viewport, vcmd = m.viewport.Update(msg)
+	if vcmd != nil {
+		cmds = append(cmds, vcmd)
+	}
 
 	return m, tea.Batch(cmds...)
 }
