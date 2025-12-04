@@ -104,7 +104,7 @@ func (d *Day1) Done() bool {
 	return d.step == len(d.input)
 }
 
-func (d Day1) View() string {
+func (d *Day1) View() string {
 	command := ""
 	if d.num < 0 {
 		command = fmt.Sprintf("L%00d", -d.num)
@@ -119,7 +119,7 @@ func (d Day1) View() string {
 	)
 }
 
-func (d Day1) ViewSolution() string {
+func (d *Day1) ViewSolution() string {
 	return fmt.Sprintf("solution1: %s solution2: %s",
 		SolutionStyle.Render(strconv.Itoa(d.solution1)),
 		SolutionStyle.Render(strconv.Itoa(d.solution2)),

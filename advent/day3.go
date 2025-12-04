@@ -115,7 +115,7 @@ func (d *Day3) Init(filename string, opts ...Option) (err error) {
 	return nil
 }
 
-func (d Day3) View() string {
+func (d *Day3) View() string {
 	if d.Quiet {
 		return "" // reduce output on quiet
 	}
@@ -136,7 +136,7 @@ func (d Day3) View() string {
 	return sb.String()
 }
 
-func (d Day3) ViewSolution() string {
+func (d *Day3) ViewSolution() string {
 	return fmt.Sprintf("solution1: %s solution2: %s",
 		SolutionStyle.Render(strconv.Itoa(d.solution1)),
 		SolutionStyle.Render(strconv.Itoa(d.solution2)),

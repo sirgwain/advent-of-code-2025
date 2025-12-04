@@ -1,8 +1,8 @@
 package advent
 
 type DayN struct {
-	solution1 int64
-	solution2 int64
+	solution1 int
+	solution2 int
 }
 
 func (d *DayN) Day() int {
@@ -41,10 +41,10 @@ func (d *DayN) Done() bool {
 	return true
 }
 
-func (d DayN) View() string {
+func (d *DayN) View() string {
 	return ""
 }
 
-func (d DayN) ViewSolution() string {
+func (d *DayN) ViewSolution() string {
 	return ""
 }

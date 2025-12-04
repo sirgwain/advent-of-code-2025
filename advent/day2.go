@@ -94,7 +94,7 @@ func (d *Day2) Done() bool {
 	return d.step == len(d.input)
 }
 
-func (d Day2) View() string {
+func (d *Day2) View() string {
 	step := min(d.step, len(d.input)-1)
 	return fmt.Sprintf("S%d ID Range %s - %s",
 		step,
@@ -104,7 +104,7 @@ func (d Day2) View() string {
 
 }
 
-func (d Day2) ViewSolution() string {
+func (d *Day2) ViewSolution() string {
 	return fmt.Sprintf("solution1: %s, solution2: %s",
 		SolutionStyle.Render(strconv.FormatInt(d.solution1, 10)),
 		SolutionStyle.Render(strconv.FormatInt(d.solution2, 10)),
