@@ -18,5 +18,5 @@ var (
 	VisitedStyle = lipgloss.NewStyle().Foreground(color.Aqua14).Background(color.FreshEggplant90)
 
 	BoxStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color(color.BrightGreen82))
-	BoxHighlightStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(color.BrightGreen82)).Background(color.CarnationPink19)
+	BoxHighlightStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(color.BrightGreen82)).Background(color.BlazeOrange202)
 )
