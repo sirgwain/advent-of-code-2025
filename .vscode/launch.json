@@ -13,9 +13,9 @@
             "args": [
                 "run",
                 "--day",
-                "5",
+                "6",
                 "--input",
-                "inputs/day5test.txt",
+                "inputs/day6test.txt",
                 // "-q",
                 // "-v",
                 // "--delay",

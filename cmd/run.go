@@ -33,8 +33,8 @@ func newRunCmd() *cobra.Command {
 				d = &advent.Day4{}
 			case 5:
 				d = &advent.Day5{}
-				// case 6:
-				// 	d = &advent.Day6{}
+			case 6:
+				d = &advent.Day6{}
 				// case 7:
 				// 	d = &advent.Day7{}
 				// case 8:
