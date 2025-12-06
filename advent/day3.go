@@ -128,7 +128,7 @@ func (d *Day3) View() string {
 		}
 		sb.WriteString(fmt.Sprintf("S%d %s highest 2: %s, highest 12: %s\n",
 			i,
-			DataStyle.Render(input),
+			Data1Style.Render(input),
 			correctResultStyle.Render(strconv.Itoa(d.highest2[i])),
 			correctResultStyle.Render(strconv.Itoa(d.highest12[i])),
 		))
@@ -166,6 +166,30 @@ func highestTwoDigits(str string) (int, error) {
 }
 
 func highestNDigits(str string, n int) (int, error) {
+
+	high := make([]byte, n)
+
+	j := 0
+	// for each digit find the highest number from right to left
+	for h := range n {
+		// go right to left through the str to find the largest number
+		highest := str[len(str)-n+h]
+		highestIndex := len(str) - n + h
+		for i := len(str) - n + h; i >= j; i-- {
+			if str[i] >= highest {
+				highest = str[i]
+				highestIndex = i
+			}
+		}
+		j = highestIndex + 1
+		high[h] = highest
+	}
+
+	return strconv.Atoi(string(high))
+}
+
+// friend's algorithm for benchmark comparison
+func shantz_highestNDigits(str string, n int) (int, error) {
 
 	high := make([]byte, n)
 

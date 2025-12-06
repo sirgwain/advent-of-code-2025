@@ -136,7 +136,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if msg.height != 0 {
 				m.viewport.Height = max(m.minWidth, min(m.windowHeight, msg.height))
 			}
+
+			// Are we currently at (or very close to) the bottom?
+			wasAtBottom := m.viewport.AtBottom()
+
+			// Replace content
 			m.viewport.SetContent(msg.content)
+
+			// If we were at the bottom before, stay at the bottom after
+			if wasAtBottom {
+				m.viewport.GotoBottom()
+			}
+
 		}
 
 	case updateSolutionMsg:

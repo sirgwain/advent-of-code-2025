@@ -71,3 +71,32 @@ func Test_highestNDigits(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkDay4Part2(b *testing.B) {
+	d := Day3{}
+	if err := d.Init("../inputs/day3.txt"); err != nil {
+		b.Fatalf("failed to init %v", err)
+	}
+	data := d.input
+
+	b.Run("sirgwain", func(b *testing.B) {
+
+		b.ResetTimer()
+		for b.Loop() {
+			for _, str := range data {
+				highestNDigits(str, 12)
+			}
+		}
+	})
+
+	b.Run("shantz", func(b *testing.B) {
+
+		b.ResetTimer()
+		for b.Loop() {
+			for _, str := range data {
+				shantz_highestNDigits(str, 12)
+			}
+		}
+	})
+
+}

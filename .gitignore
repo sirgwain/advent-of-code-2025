@@ -26,5 +26,8 @@ go.work.sum
 # env file
 .env
 
+# macos files
+.DS_Store
+
 # igore the binary
 advent-of-code-2025

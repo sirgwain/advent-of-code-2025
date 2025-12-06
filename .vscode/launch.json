@@ -13,10 +13,10 @@
             "args": [
                 "run",
                 "--day",
-                "3",
+                "5",
                 "--input",
-                "inputs/day3test.txt",
-                "-q",
+                "inputs/day5test.txt",
+                // "-q",
                 // "-v",
                 // "--delay",
                 // "500"

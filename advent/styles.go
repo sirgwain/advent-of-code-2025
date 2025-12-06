@@ -9,7 +9,8 @@ var (
 	// the style of the solution text
 	SolutionStyle        = lipgloss.NewStyle().Foreground(color.Aquamarine86)
 	StepStyle            = lipgloss.NewStyle().Foreground(color.LightYellow11)
-	DataStyle            = lipgloss.NewStyle().Foreground(color.AmericanOrange208)
+	Data1Style           = lipgloss.NewStyle().Foreground(color.LightCobaltBlue110)
+	Data2Style           = lipgloss.NewStyle().Foreground(color.Coral209)
 	correctResultStyle   = lipgloss.NewStyle().Foreground(color.StrongLimeGreen40)
 	incorrectResultStyle = lipgloss.NewStyle().Foreground(color.LightRed9)
 
