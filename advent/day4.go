@@ -9,7 +9,6 @@ import (
 type Day4 struct {
 	*Options
 	board        [][]rune
-	pos          Position // current position we are evaluating
 	validSquares map[Position]bool
 	solution1    int
 	solution2    int
@@ -17,8 +16,7 @@ type Day4 struct {
 
 // prerender some styled characters
 var (
-	renderedPaperTowel          = BoxStyle.Render("@")
-	renderedPaperTowelHighlight = BoxHighlightStyle.Render("@")
+	renderedPaperTowel = BoxStyle.Render("@")
 )
 
 func (d *Day4) Day() int {

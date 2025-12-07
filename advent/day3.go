@@ -36,7 +36,7 @@ func (d *Day3) Run(updates chan<- DayUpdate) error {
 	results := make(chan *day3Workload, len(d.input)) // Channel to collect results
 
 	// Worker function
-	worker := func(id int, jobs <-chan *day3Workload, results chan<- *day3Workload) error {
+	worker := func(jobs <-chan *day3Workload, results chan<- *day3Workload) error {
 		for job := range jobs {
 			highest2, err := highestTwoDigits(job.str)
 			if err != nil {
@@ -59,7 +59,7 @@ func (d *Day3) Run(updates chan<- DayUpdate) error {
 
 	// Start the workers
 	for i := 0; i < numWorkers; i++ {
-		go worker(i, jobs, results)
+		go worker(jobs, results)
 	}
 
 	// send all the jobs to the workers
