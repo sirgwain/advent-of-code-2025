@@ -34,7 +34,72 @@ type Day5 struct {
 }
 
 func (d *Day5) Day() int {
-	return 0
+	return 5
+}
+
+// Init loads in the input from the file and initializes the Day
+func (d *Day5) Init(filename string, options *Options) (err error) {
+	d.Options = options
+	file, err := os.Open(filename)
+	if err != nil {
+		return fmt.Errorf("error opening file: %w", err)
+	}
+	defer file.Close()
+
+	idMode := false
+	d.inputRange.low = math.MaxInt64
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// blank line is new input type
+		if strings.TrimSpace(line) == "" {
+			idMode = true
+			continue
+		}
+
+		if idMode {
+			num, err := strconv.ParseInt(line, 10, 64)
+			if err != nil {
+				return fmt.Errorf("error parsing number on line: %s", line)
+			}
+			d.inputIDs = append(d.inputIDs, num)
+			continue
+		}
+
+		// split ids, 92714816788170-94137721164754
+		split := strings.Split(line, "-")
+		if len(split) != 2 {
+			return fmt.Errorf("error splitting range input line")
+		}
+
+		low, err := strconv.ParseInt(split[0], 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing number on line: %s", line)
+		}
+
+		high, err := strconv.ParseInt(split[1], 10, 64)
+		if err != nil {
+			return fmt.Errorf("error parsing number on line: %s", line)
+		}
+
+		d.inputRange.low = min(low, d.inputRange.low)
+		d.inputRange.high = max(high, d.inputRange.high)
+		d.inputRanges = append(d.inputRanges, int64Range{low, high})
+	}
+
+	slog.Debug(fmt.Sprintf("input range: %d..%d (dist: %d)", d.inputRange.low, d.inputRange.high, (d.inputRange.high - d.inputRange.low)))
+
+	// Allocate 400x200 grid (y-major: grid[y][x])
+	d.grid = make([][]byte, gridHeight)
+	for y := range d.grid {
+		d.grid[y] = make([]byte, gridWidth)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("error reading file: %w", err)
+	}
+	return nil
 }
 
 func (d *Day5) Run(updates chan<- DayUpdate) error {
@@ -45,16 +110,16 @@ func (d *Day5) Run(updates chan<- DayUpdate) error {
 		if !d.Quiet {
 			d.calcSolution2()
 			updates <- DayUpdate{
-				View:     d.ViewGrid(),
-				Solution: d.ViewSolution(),
+				View:     d.viewGrid(),
+				Solution: d.viewSolution(),
 				Done:     false,
 			}
 		}
 	})
 
 	updates <- DayUpdate{
-		View:     d.ViewGrid(),
-		Solution: d.ViewSolution(),
+		View:     d.viewGrid(),
+		Solution: d.viewSolution(),
 		Done:     true,
 	}
 	return nil
@@ -162,72 +227,7 @@ func checkIn64RangeOverlap(r1, r2 int64Range) int64Range {
 	return merged
 }
 
-// Init loads in the input from the file and initializes the Day
-func (d *Day5) Init(filename string, opts ...Option) (err error) {
-	d.Options = NewRun(opts...)
-	file, err := os.Open(filename)
-	if err != nil {
-		return fmt.Errorf("error opening file: %w", err)
-	}
-	defer file.Close()
-
-	idMode := false
-	d.inputRange.low = math.MaxInt64
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		// blank line is new input type
-		if strings.TrimSpace(line) == "" {
-			idMode = true
-			continue
-		}
-
-		if idMode {
-			num, err := strconv.ParseInt(line, 10, 64)
-			if err != nil {
-				return fmt.Errorf("error parsing number on line: %s", line)
-			}
-			d.inputIDs = append(d.inputIDs, num)
-			continue
-		}
-
-		// split ids, 92714816788170-94137721164754
-		split := strings.Split(line, "-")
-		if len(split) != 2 {
-			return fmt.Errorf("error splitting range input line")
-		}
-
-		low, err := strconv.ParseInt(split[0], 10, 64)
-		if err != nil {
-			return fmt.Errorf("error parsing number on line: %s", line)
-		}
-
-		high, err := strconv.ParseInt(split[1], 10, 64)
-		if err != nil {
-			return fmt.Errorf("error parsing number on line: %s", line)
-		}
-
-		d.inputRange.low = min(low, d.inputRange.low)
-		d.inputRange.high = max(high, d.inputRange.high)
-		d.inputRanges = append(d.inputRanges, int64Range{low, high})
-	}
-
-	slog.Debug(fmt.Sprintf("input range: %d..%d (dist: %d)", d.inputRange.low, d.inputRange.high, (d.inputRange.high - d.inputRange.low)))
-
-	// Allocate 400x200 grid (y-major: grid[y][x])
-	d.grid = make([][]byte, gridHeight)
-	for y := range d.grid {
-		d.grid[y] = make([]byte, gridWidth)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("error reading file: %w", err)
-	}
-	return nil
-}
-
-func (d *Day5) View() string {
+func (d *Day5) view() string {
 	if d.Quiet {
 		return ""
 	}
@@ -236,12 +236,12 @@ func (d *Day5) View() string {
 	for i, r := range d.ranges {
 		var highStr string
 		if d.mergedRanges[i] {
-			highStr = VisitedStyle.Render(strconv.FormatInt(r.high, 10))
+			highStr = visitedStyle.Render(strconv.FormatInt(r.high, 10))
 		} else {
-			highStr = Data2Style.Render(strconv.FormatInt(r.high, 10))
+			highStr = data2Style.Render(strconv.FormatInt(r.high, 10))
 		}
 		sb.WriteString(fmt.Sprintf("%s..%s → valid ids: %s\n",
-			Data1Style.Render(strconv.FormatInt(r.low, 10)),
+			data1Style.Render(strconv.FormatInt(r.low, 10)),
 			highStr,
 			correctResultStyle.Render(strconv.FormatInt(r.high-r.low+1, 10)),
 		))
@@ -249,7 +249,7 @@ func (d *Day5) View() string {
 	return sb.String()
 }
 
-func (d *Day5) ViewGrid() string {
+func (d *Day5) viewGrid() string {
 	if d.Quiet {
 		return ""
 	}
@@ -259,10 +259,10 @@ func (d *Day5) ViewGrid() string {
 	return RenderBrailleWithColor(d.grid, DensityColor)
 }
 
-func (d *Day5) ViewSolution() string {
+func (d *Day5) viewSolution() string {
 	return fmt.Sprintf("solution1: %s, solution2: %s",
-		SolutionStyle.Render(strconv.Itoa(d.solution1)),
-		SolutionStyle.Render(strconv.FormatInt(d.solution2, 10)),
+		solutionStyle.Render(strconv.Itoa(d.solution1)),
+		solutionStyle.Render(strconv.FormatInt(d.solution2, 10)),
 	)
 }
 

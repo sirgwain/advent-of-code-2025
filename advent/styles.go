@@ -7,17 +7,17 @@ import (
 
 var (
 	// the style of the solution text
-	SolutionStyle        = lipgloss.NewStyle().Foreground(color.Aquamarine86)
+	solutionStyle        = lipgloss.NewStyle().Foreground(color.Aquamarine86)
 	StepStyle            = lipgloss.NewStyle().Foreground(color.LightYellow11)
-	Data1Style           = lipgloss.NewStyle().Foreground(color.LightCobaltBlue110)
-	Data2Style           = lipgloss.NewStyle().Foreground(color.Coral209)
+	data1Style           = lipgloss.NewStyle().Foreground(color.LightCobaltBlue110)
+	data2Style           = lipgloss.NewStyle().Foreground(color.Coral209)
 	correctResultStyle   = lipgloss.NewStyle().Foreground(color.StrongLimeGreen40)
 	incorrectResultStyle = lipgloss.NewStyle().Foreground(color.LightRed9)
 
 	// some common styles
-	WallStyle    = lipgloss.NewStyle().Foreground(color.BlazeOrange202)
-	VisitedStyle = lipgloss.NewStyle().Foreground(color.Aqua14).Background(color.FreshEggplant90)
+	wallStyle    = lipgloss.NewStyle().Foreground(color.BlazeOrange202)
+	visitedStyle = lipgloss.NewStyle().Foreground(color.Aqua14).Background(color.FreshEggplant90)
 
-	BoxStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color(color.BrightGreen82))
-	BoxHighlightStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(color.BrightGreen82)).Background(color.BlazeOrange202)
+	boxStyle          = lipgloss.NewStyle().Foreground(lipgloss.Color(color.BrightGreen82))
+	boxHighlightStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(color.BrightGreen82)).Background(color.BlazeOrange202)
 )

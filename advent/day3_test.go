@@ -74,7 +74,7 @@ func Test_highestNDigits(t *testing.T) {
 
 func BenchmarkDay4Part2(b *testing.B) {
 	d := Day3{}
-	if err := d.Init("../inputs/day3.txt"); err != nil {
+	if err := d.Init("../inputs/day3.txt", &Options{}); err != nil {
 		b.Fatalf("failed to init %v", err)
 	}
 	data := d.input

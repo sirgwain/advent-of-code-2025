@@ -28,6 +28,21 @@ func (d *Day3) Day() int {
 	return 3
 }
 
+// Init loads in the input from the file and initializes the Day
+func (d *Day3) Init(filename string, options *Options) (err error) {
+	d.Options = options
+	content, err := os.ReadFile(filename)
+
+	if err != nil {
+		return err
+	}
+
+	d.input = strings.Split(string(content), "\n")
+	d.highest2 = make([]int, len(d.input))
+	d.highest12 = make([]int, len(d.input))
+	return nil
+}
+
 func (d *Day3) Run(updates chan<- DayUpdate) error {
 
 	numWorkers := len(d.input)
@@ -81,41 +96,25 @@ func (d *Day3) Run(updates chan<- DayUpdate) error {
 		d.solution1 += result.highest2
 		d.solution2 += result.highest12
 
-		if d.Quiet {
-			continue
-		}
-		updates <- DayUpdate{
-			View:     d.View(),
-			Solution: d.ViewSolution(),
-			Done:     false,
+		if !d.Quiet {
+			updates <- DayUpdate{
+				View:     d.view(),
+				Solution: d.viewSolution(),
+				Done:     false,
+			}
 		}
 	}
 
 	updates <- DayUpdate{
-		View:     d.View(),
-		Solution: d.ViewSolution(),
+		View:     d.view(),
+		Solution: d.viewSolution(),
 		Done:     true,
 	}
 
 	return nil
 }
 
-// Init loads in the input from the file and initializes the Day
-func (d *Day3) Init(filename string, opts ...Option) (err error) {
-	d.Options = NewRun(opts...)
-	content, err := os.ReadFile(filename)
-
-	if err != nil {
-		return err
-	}
-
-	d.input = strings.Split(string(content), "\n")
-	d.highest2 = make([]int, len(d.input))
-	d.highest12 = make([]int, len(d.input))
-	return nil
-}
-
-func (d *Day3) View() string {
+func (d *Day3) view() string {
 	if d.Quiet {
 		return "" // reduce output on quiet
 	}
@@ -128,7 +127,7 @@ func (d *Day3) View() string {
 		}
 		sb.WriteString(fmt.Sprintf("S%d %s highest 2: %s, highest 12: %s\n",
 			i,
-			Data1Style.Render(input),
+			data1Style.Render(input),
 			correctResultStyle.Render(strconv.Itoa(d.highest2[i])),
 			correctResultStyle.Render(strconv.Itoa(d.highest12[i])),
 		))
@@ -136,10 +135,10 @@ func (d *Day3) View() string {
 	return sb.String()
 }
 
-func (d *Day3) ViewSolution() string {
+func (d *Day3) viewSolution() string {
 	return fmt.Sprintf("solution1: %s solution2: %s",
-		SolutionStyle.Render(strconv.Itoa(d.solution1)),
-		SolutionStyle.Render(strconv.Itoa(d.solution2)),
+		solutionStyle.Render(strconv.Itoa(d.solution1)),
+		solutionStyle.Render(strconv.Itoa(d.solution2)),
 	)
 }
 

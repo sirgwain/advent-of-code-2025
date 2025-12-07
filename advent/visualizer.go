@@ -15,12 +15,13 @@ type DayUpdate struct {
 
 type Day interface {
 	Day() int
-	Init(filename string, opts ...Option) error
+	Init(filename string, options *Options) error
 	Run(updates chan<- DayUpdate) error
 }
 
 func Run(d Day, filename string, opts ...Option) error {
-	if err := d.Init(filename, opts...); err != nil {
+	options := NewRun(opts...)
+	if err := d.Init(filename, options); err != nil {
 		return err
 	}
 
@@ -48,7 +49,7 @@ func RunVisual(d Day, filename string, opts ...Option) error {
 	p := tui.NewViewportProgram(tui.NewModel(fmt.Sprintf("Day %d", d.Day())))
 	options := NewRun(opts...)
 
-	if err := d.Init(filename, opts...); err != nil {
+	if err := d.Init(filename, options); err != nil {
 		return err
 	}
 

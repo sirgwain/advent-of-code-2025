@@ -16,11 +16,24 @@ type Day4 struct {
 
 // prerender some styled characters
 var (
-	renderedPaperTowel = BoxStyle.Render("@")
+	renderedPaperTowel = boxStyle.Render("@")
 )
 
 func (d *Day4) Day() int {
-	return 0
+	return 4
+}
+
+// Init loads in the input from the file and initializes the Day
+func (d *Day4) Init(filename string, options *Options) (err error) {
+	d.Options = options
+
+	input, err := ReadInputAsRunes(filename)
+	if err != nil {
+		return err
+	}
+	d.board = input
+	d.validSquares = make(map[Position]bool)
+	return nil
 }
 
 func (d *Day4) Run(updates chan<- DayUpdate) error {
@@ -46,8 +59,8 @@ func (d *Day4) Run(updates chan<- DayUpdate) error {
 			}
 			if !d.Quiet {
 				updates <- DayUpdate{
-					View:     d.View(),
-					Solution: d.ViewSolution(),
+					View:     d.view(),
+					Solution: d.viewSolution(),
 				}
 			}
 		}
@@ -64,8 +77,8 @@ func (d *Day4) Run(updates chan<- DayUpdate) error {
 	}
 
 	updates <- DayUpdate{
-		View:     d.View(),
-		Solution: d.ViewSolution(),
+		View:     d.view(),
+		Solution: d.viewSolution(),
 		Done:     true,
 	}
 
@@ -85,26 +98,17 @@ func countAdjacent(board [][]rune, pos Position, r rune) int {
 	return count
 }
 
-// Init loads in the input from the file and initializes the Day
-func (d *Day4) Init(filename string, opts ...Option) (err error) {
-	d.Options = NewRun(opts...)
-	input, err := ReadInputAsRunes(filename)
-	if err != nil {
-		return err
+func (d *Day4) view() string {
+	if d.Quiet {
+		return ""
 	}
-	d.board = input
-	d.validSquares = make(map[Position]bool)
-	return nil
-}
-
-func (d *Day4) View() string {
 
 	var sb strings.Builder
 	for y, line := range d.board {
 		for x, r := range line {
 			pos := Position{x, y}
 			if d.validSquares[pos] {
-				sb.WriteString(BoxHighlightStyle.Render(string(r)))
+				sb.WriteString(boxHighlightStyle.Render(string(r)))
 				continue
 			}
 			switch r {
@@ -119,10 +123,10 @@ func (d *Day4) View() string {
 	return sb.String()
 }
 
-func (d *Day4) ViewSolution() string {
+func (d *Day4) viewSolution() string {
 	return fmt.Sprintf("solution1: %s solution2: %s",
-		SolutionStyle.Render(strconv.Itoa(d.solution1)),
-		SolutionStyle.Render(strconv.Itoa(d.solution2)),
+		solutionStyle.Render(strconv.Itoa(d.solution1)),
+		solutionStyle.Render(strconv.Itoa(d.solution2)),
 	)
 
 }

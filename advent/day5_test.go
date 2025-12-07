@@ -29,7 +29,7 @@ func Test_checkIn64RangeOverlap(t *testing.T) {
 
 func BenchmarkDay5Part2(b *testing.B) {
 	d := Day5{}
-	if err := d.Init("../inputs/day5.txt"); err != nil {
+	if err := d.Init("../inputs/day5.txt", &Options{}); err != nil {
 		b.Fatalf("failed to load input %v", err)
 	}
 

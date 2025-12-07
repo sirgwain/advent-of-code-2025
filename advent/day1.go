@@ -8,6 +8,7 @@ import (
 )
 
 type Day1 struct {
+	*Options
 	input     []int
 	step      int
 	dial      int
@@ -28,18 +29,27 @@ func (d *Day1) Run(updates chan<- DayUpdate) error {
 			break
 		}
 
-		updates <- DayUpdate{
-			View:     d.View(),
-			Solution: d.ViewSolution(),
-			Done:     d.Done(),
+		if !d.Quiet {
+			updates <- DayUpdate{
+				View:     d.view(),
+				Solution: d.viewSolution(),
+				Done:     d.done(),
+			}
 		}
+	}
+
+	updates <- DayUpdate{
+		View:     d.view(),
+		Solution: d.viewSolution(),
+		Done:     d.done(),
 	}
 
 	return nil
 }
 
 // Init loads in the input from the file and initializes the Day
-func (d *Day1) Init(filename string, opts ...Option) (err error) {
+func (d *Day1) Init(filename string, options *Options) (err error) {
+	d.Options = options
 	// dial starts at 50
 	d.dial = 50
 
@@ -97,14 +107,17 @@ func (d *Day1) Progress() bool {
 	}
 	d.step++
 
-	return d.Done()
+	return d.done()
 }
 
-func (d *Day1) Done() bool {
+func (d *Day1) done() bool {
 	return d.step == len(d.input)
 }
 
-func (d *Day1) View() string {
+func (d *Day1) view() string {
+	if d.Quiet {
+		return ""
+	}
 	command := ""
 	if d.num < 0 {
 		command = fmt.Sprintf("L%00d", -d.num)
@@ -119,9 +132,9 @@ func (d *Day1) View() string {
 	)
 }
 
-func (d *Day1) ViewSolution() string {
+func (d *Day1) viewSolution() string {
 	return fmt.Sprintf("solution1: %s solution2: %s",
-		SolutionStyle.Render(strconv.Itoa(d.solution1)),
-		SolutionStyle.Render(strconv.Itoa(d.solution2)),
+		solutionStyle.Render(strconv.Itoa(d.solution1)),
+		solutionStyle.Render(strconv.Itoa(d.solution2)),
 	)
 }

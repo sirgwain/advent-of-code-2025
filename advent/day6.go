@@ -15,31 +15,18 @@ type Day6 struct {
 	step            int
 	problem         string
 	problemSolution int
-	viewStr            strings.Builder
+	viewStr         strings.Builder
 	solution1       int
 	solution2       int
 }
 
 func (d *Day6) Day() int {
-	return 0
-}
-
-func (d *Day6) Run(updates chan<- DayUpdate) error {
-
-	d.part1()
-	d.part2(updates)
-
-	updates <- DayUpdate{
-		View:     d.View(),
-		Solution: d.ViewSolution(),
-		Done:     true,
-	}
-	return nil
+	return 6
 }
 
 // Init loads in the input from the file and initializes the Day
-func (d *Day6) Init(filename string, opts ...Option) (err error) {
-	d.Options = NewRun(opts...)
+func (d *Day6) Init(filename string, options *Options) (err error) {
+	d.Options = options
 	content, err := os.ReadFile(filename)
 
 	if err != nil {
@@ -69,6 +56,19 @@ func (d *Day6) Init(filename string, opts ...Option) (err error) {
 		}
 	}
 
+	return nil
+}
+
+func (d *Day6) Run(updates chan<- DayUpdate) error {
+
+	d.part1()
+	d.part2(updates)
+
+	updates <- DayUpdate{
+		View:     d.view(),
+		Solution: d.viewSolution(),
+		Done:     true,
+	}
 	return nil
 }
 
@@ -132,8 +132,8 @@ NEXTPROBLEM:
 
 			if !(d.Quiet) {
 				updates <- DayUpdate{
-					View:     d.View(),
-					Solution: d.ViewSolution(),
+					View:     d.view(),
+					Solution: d.viewSolution(),
 					Done:     false,
 				}
 			}
@@ -179,18 +179,22 @@ func (d *Day6) byteSliceToNumber(bytes []byte) int {
 	return num
 }
 
-func (d *Day6) View() string {
+func (d *Day6) view() string {
+	if d.Quiet {
+		return ""
+	}
+
 	line := fmt.Sprintf("%s = %s\n",
-		Data1Style.Render(d.problem),
+		data1Style.Render(d.problem),
 		correctResultStyle.Render(strconv.Itoa(d.problemSolution)),
 	)
 	d.viewStr.WriteString(line)
 	return d.viewStr.String()
 }
 
-func (d *Day6) ViewSolution() string {
+func (d *Day6) viewSolution() string {
 	return fmt.Sprintf("solution1: %s solution2: %s",
-		SolutionStyle.Render(strconv.Itoa(d.solution1)),
-		SolutionStyle.Render(strconv.Itoa(d.solution2)),
+		solutionStyle.Render(strconv.Itoa(d.solution1)),
+		solutionStyle.Render(strconv.Itoa(d.solution2)),
 	)
 }

@@ -9,6 +9,7 @@ import (
 )
 
 type Day2 struct {
+	*Options
 	input     [][2]int
 	step      int
 	solution1 int64
@@ -19,26 +20,9 @@ func (d *Day2) Day() int {
 	return 2
 }
 
-func (d *Day2) Run(updates chan<- DayUpdate) error {
-
-	for {
-		done := d.Progress()
-		if done {
-			break
-		}
-
-		updates <- DayUpdate{
-			View:     d.View(),
-			Solution: d.ViewSolution(),
-			Done:     d.Done(),
-		}
-	}
-
-	return nil
-}
-
 // Init loads in the input from the file and initializes the Day
-func (d *Day2) Init(filename string, opts ...Option) (err error) {
+func (d *Day2) Init(filename string, options *Options) (err error) {
+	d.Options = options
 
 	content, err := os.ReadFile(filename)
 
@@ -66,6 +50,32 @@ func (d *Day2) Init(filename string, opts ...Option) (err error) {
 	return nil
 }
 
+func (d *Day2) Run(updates chan<- DayUpdate) error {
+
+	for {
+		done := d.Progress()
+		if done {
+			break
+		}
+
+		if !d.Quiet {
+			updates <- DayUpdate{
+				View:     d.view(),
+				Solution: d.viewSolution(),
+				Done:     d.done(),
+			}
+		}
+	}
+
+	updates <- DayUpdate{
+		View:     d.view(),
+		Solution: d.viewSolution(),
+		Done:     d.done(),
+	}
+
+	return nil
+}
+
 // Progress progresses one "step" and returns true if finished
 func (d *Day2) Progress() (done bool) {
 
@@ -87,14 +97,18 @@ func (d *Day2) Progress() (done bool) {
 
 	d.step++
 
-	return d.Done()
+	return d.done()
 }
 
-func (d *Day2) Done() bool {
+func (d *Day2) done() bool {
 	return d.step == len(d.input)
 }
 
-func (d *Day2) View() string {
+func (d *Day2) view() string {
+	if d.Quiet {
+		return ""
+	}
+
 	step := min(d.step, len(d.input)-1)
 	return fmt.Sprintf("S%d ID Range %s - %s",
 		step,
@@ -104,10 +118,10 @@ func (d *Day2) View() string {
 
 }
 
-func (d *Day2) ViewSolution() string {
+func (d *Day2) viewSolution() string {
 	return fmt.Sprintf("solution1: %s, solution2: %s",
-		SolutionStyle.Render(strconv.FormatInt(d.solution1, 10)),
-		SolutionStyle.Render(strconv.FormatInt(d.solution2, 10)),
+		solutionStyle.Render(strconv.FormatInt(d.solution1, 10)),
+		solutionStyle.Render(strconv.FormatInt(d.solution2, 10)),
 	)
 }
 
