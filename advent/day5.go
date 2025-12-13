@@ -110,7 +110,7 @@ func (d *Day5) Run(updates chan<- DayUpdate) error {
 		if !d.Quiet {
 			d.calcSolution2()
 			updates <- DayUpdate{
-				View:     d.viewGrid(),
+				View:     d.view(),
 				Solution: d.viewSolution(),
 				Done:     false,
 			}
@@ -118,7 +118,7 @@ func (d *Day5) Run(updates chan<- DayUpdate) error {
 	})
 
 	updates <- DayUpdate{
-		View:     d.viewGrid(),
+		View:     d.view(),
 		Solution: d.viewSolution(),
 		Done:     true,
 	}
@@ -229,7 +229,7 @@ func checkIn64RangeOverlap(r1, r2 int64Range) int64Range {
 
 func (d *Day5) view() string {
 	if d.Quiet {
-		return ""
+		// return ""
 	}
 
 	var sb strings.Builder

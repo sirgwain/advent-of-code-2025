@@ -9,7 +9,7 @@ import (
 type Day4 struct {
 	*Options
 	board        [][]rune
-	validSquares map[Position]bool
+	validSquares map[Point]bool
 	solution1    int
 	solution2    int
 }
@@ -32,7 +32,7 @@ func (d *Day4) Init(filename string, options *Options) (err error) {
 		return err
 	}
 	d.board = input
-	d.validSquares = make(map[Position]bool)
+	d.validSquares = make(map[Point]bool)
 	return nil
 }
 
@@ -46,7 +46,7 @@ func (d *Day4) Run(updates chan<- DayUpdate) error {
 					continue
 				}
 				// check if there are less than 4 papertowels adjacent to us
-				pos := Position{x, y}
+				pos := Point{x, y}
 				adjacentObstacles := countAdjacent(d.board, pos, '@')
 				if adjacentObstacles < 4 {
 					if iteration == 0 {
@@ -72,7 +72,7 @@ func (d *Day4) Run(updates chan<- DayUpdate) error {
 		for p := range d.validSquares {
 			d.board[p.Y][p.X] = '.'
 		}
-		d.validSquares = map[Position]bool{}
+		d.validSquares = map[Point]bool{}
 		iteration++
 	}
 
@@ -86,7 +86,7 @@ func (d *Day4) Run(updates chan<- DayUpdate) error {
 }
 
 // countAdjacent check for the existence of a rune adjacent to a position
-func countAdjacent(board [][]rune, pos Position, r rune) int {
+func countAdjacent(board [][]rune, pos Point, r rune) int {
 	count := 0
 	for _, d := range AdjacentDirections {
 		square := pos.addDirection(d)
@@ -106,7 +106,7 @@ func (d *Day4) view() string {
 	var sb strings.Builder
 	for y, line := range d.board {
 		for x, r := range line {
-			pos := Position{x, y}
+			pos := Point{x, y}
 			if d.validSquares[pos] {
 				sb.WriteString(boxHighlightStyle.Render(string(r)))
 				continue

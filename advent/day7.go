@@ -16,8 +16,8 @@ var (
 type Day7 struct {
 	*Options
 	board              [][]rune
-	splits             map[Position]bool
-	solutionsFromSplit map[Position]int64
+	splits             map[Point]bool
+	solutionsFromSplit map[Point]int64
 
 	solution1 int
 	solution2 int64
@@ -35,8 +35,8 @@ func (d *Day7) Init(filename string, options *Options) (err error) {
 		return err
 	}
 
-	d.splits = make(map[Position]bool)
-	d.solutionsFromSplit = make(map[Position]int64)
+	d.splits = make(map[Point]bool)
+	d.solutionsFromSplit = make(map[Point]int64)
 	return nil
 }
 
@@ -59,9 +59,9 @@ func (d *Day7) fireBeams(updates chan<- DayUpdate) {
 }
 
 func (d *Day7) fireBeam(x, y int, updates chan<- DayUpdate) int64 {
-	if _, ok := d.solutionsFromSplit[Position{x, y}]; ok {
+	if _, ok := d.solutionsFromSplit[Point{x, y}]; ok {
 		// already tried this route
-		return d.solutionsFromSplit[Position{x, y}]
+		return d.solutionsFromSplit[Point{x, y}]
 	}
 
 	if y >= len(d.board) {
@@ -80,13 +80,13 @@ func (d *Day7) fireBeam(x, y int, updates chan<- DayUpdate) int64 {
 	val := GetBoardValue(x, y, d.board)
 	if val == '^' {
 		// found split
-		d.splits[Position{x, y}] = true
+		d.splits[Point{x, y}] = true
 		d.solution1 = len(d.splits)
-		d.solutionsFromSplit[Position{x, y}] = 0
+		d.solutionsFromSplit[Point{x, y}] = 0
 		l := d.fireBeam(x-1, y, updates)
-		d.solutionsFromSplit[Position{x, y}] = l
+		d.solutionsFromSplit[Point{x, y}] = l
 		r := d.fireBeam(x+1, y, updates)
-		d.solutionsFromSplit[Position{x, y}] += r
+		d.solutionsFromSplit[Point{x, y}] += r
 		return l + r
 	} else {
 		d.board[y][x] = '|'
@@ -106,8 +106,8 @@ func (d *Day7) view() string {
 			case 'S':
 				sb.WriteString(renderedStart)
 			case '^':
-				solutionsfromPosition := d.solutionsFromSplit[Position{x, y}]
-				if d.splits[Position{x, y}] {
+				solutionsfromPosition := d.solutionsFromSplit[Point{x, y}]
+				if d.splits[Point{x, y}] {
 					sb.WriteString(visitedStyle.Render(fmt.Sprintf("%3d", solutionsfromPosition)))
 				} else {
 					sb.WriteString(renderedSplit)

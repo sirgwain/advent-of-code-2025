@@ -121,23 +121,23 @@ func (d Direction) OffsetMultiplier() (x, y int) {
 	return 0, 0
 }
 
-func DirectionFromOffset(offset Position) Direction {
+func DirectionFromOffset(offset Point) Direction {
 	switch offset {
-	case Position{0, -1}:
+	case Point{0, -1}:
 		return DirectionUp
-	case Position{1, 0}:
+	case Point{1, 0}:
 		return DirectionRight
-	case Position{0, 1}:
+	case Point{0, 1}:
 		return DirectionDown
-	case Position{-1, 0}:
+	case Point{-1, 0}:
 		return DirectionLeft
-	case Position{1, -1}:
+	case Point{1, -1}:
 		return DirectionUpRight
-	case Position{1, 1}:
+	case Point{1, 1}:
 		return DirectionDownRight
-	case Position{-1, 1}:
+	case Point{-1, 1}:
 		return DirectionDownLeft
-	case Position{-1, -1}:
+	case Point{-1, -1}:
 		return DirectionUpLeft
 	}
 	panic(fmt.Sprintf("invalid offset %v", offset))
